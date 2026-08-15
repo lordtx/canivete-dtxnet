@@ -12,7 +12,7 @@ WORKDIR /app
 COPY package.json ./
 RUN npm install --omit=dev --no-audit --no-fund
 
-COPY server.js db.js ./
+COPY server.js db.js db-sqlite.js db-pg.js storage.js ./
 COPY public ./public
 
 ENV DATA_DIR=/data \
