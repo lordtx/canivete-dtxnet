@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel · Canivete</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%232E2A24'/%3E%3Ctext x='32' y='43' font-family='Georgia,serif' font-size='34' font-weight='bold' fill='%23F0E6D3' text-anchor='middle'%3E%3C/text%3E%3C/svg%3E">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body class="tema-claro">
+
+<!-- LOGIN -->
+<div id="telaLogin" class="tela-login oculto">
+  <div class="cartao-login">
+    <div class="monograma">C</div>
+    <h1>Painel · Canivete</h1>
+    <p>Área restrita ao administrador</p>
+    <form id="formLogin" style="text-align:left">
+      <div class="campo"><label>Senha</label><input type="password" id="loginSenha" autocomplete="current-password" placeholder="••••••••"></div>
+      <button class="btn btn-primario btn-bloco" type="submit">Entrar</button>
+    </form>
+    <p id="loginErro" class="dica" style="color:var(--danger); margin-top:10px; text-align:center"></p>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="telaAdmin" class="admin-layout oculto">
+  <nav class="admin-nav">
+    <div class="marca">🛠️ Canivete</div>
+    <button data-secao="painel">📊 Painel</button>
+    <button data-secao="menus">🗂️ Menus</button>
+    <button data-secao="conteudos">📄 Conteúdos</button>
+    <button data-secao="produtos">🏆 Produtos <span id="badgePendentes"></span></button>
+    <button data-secao="precos">📈 Tabela de Preços</button>
+    <button data-secao="envios">📋 Envios</button>
+    <button data-secao="config">⚙️ Configurações</button>
+    <div style="flex:1"></div>
+    <button data-secao="sair">🚪 Sair</button>
+  </nav>
+  <main class="admin-main" id="adminMain"></main>
+</div>
+
+<div id="toasts"></div>
+
+<script src="js/comum.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

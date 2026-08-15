@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canivete · Central de Informações</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%232E2A24'/%3E%3Ctext x='32' y='43' font-family='Georgia,serif' font-size='34' font-weight='bold' fill='%23F0E6D3' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E">
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2E2A24">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Canivete">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/estilo.css">
+</head>
+<body class="tema-claro">
+<video id="fundoVideo" muted loop playsinline autoplay style="display:none"></video>
+<div id="fundoOverlay"></div>
+
+<div id="app">
+  <header class="cabecalho">
+    <button class="btn btn-fantasma btn-menu" id="btnAbrirMenu" title="Menu">☰</button>
+    <div class="monograma" id="monograma">C</div>
+    <div>
+      <h1 id="tituloSite">Canivete</h1>
+      <div class="sub" id="subtituloSite">Central de informações</div>
+    </div>
+    <div class="acoes">
+      <button class="btn btn-fantasma" id="btnRanking">🏆 Ranking</button>
+      <button class="btn btn-fantasma" id="btnMateriais">📥 Meus materiais</button>
+    </div>
+  </header>
+
+  <div class="corpo">
+    <aside class="sidebar" id="sidebar">
+      <ul class="arvore" id="arvoreMenus"></ul>
+    </aside>
+    <main class="conteudo" id="conteudo"></main>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script src="js/comum.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

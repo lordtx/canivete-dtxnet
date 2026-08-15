@@ -1,0 +1,12 @@
+node_modules/
+dados/
+dados-teste/
+qa/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+.git/
+.DS_Store
+.env-teste
+.git-token
