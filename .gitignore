@@ -10,3 +10,5 @@ qa/
 .DS_Store
 .env-teste
 .git-token
+push_github.sh
+.deploy-segredos

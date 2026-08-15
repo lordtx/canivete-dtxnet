@@ -9,7 +9,9 @@ ranking de produtos com aprovação, e cópias em PDF dos preenchimentos do usu�
 
 ## Stack
 
-- Node.js 22 + Express + SQLite (better-sqlite3) — serviço único
+- Node.js 22 + Express — serviço único
+- **Banco selecionável por env var**: PostgreSQL (`DATABASE_URL`, driver `pg`) **ou** SQLite (`better-sqlite3`, padrão)
+- **Arquivos selecionáveis por env var**: MinIO/S3 (`S3_*`, SDK `@aws-sdk/client-s3`) **ou** disco local (padrão)
 - Frontend vanilla JS (sem build) + jsPDF/autotable via CDN
 - PWA (manifest + service worker offline-first)
 - Deploy: Dockerfile → Coolify (volume persistente `/data`)
@@ -21,6 +23,9 @@ ranking de produtos com aprovação, e cópias em PDF dos preenchimentos do usu�
 | `PAINEL_ADM` | ✅ | Caminho reserva do painel (ex: `gestao-reserva-4821`) |
 | `SENHA_ADM` | ✅ | Senha inicial do admin (trocável pelo painel; depois vale o banco) |
 | `PAINEL_ADM_HOSTS` | — | Domínio(s) que abrem o painel direto, separados por vírgula (ex: `panadm.dtxnet.top`) |
+| `DATABASE_URL` | — | Connection string PostgreSQL (ex: `postgres://user:senha@supabase:5432/postgres`). Sem ela usa SQLite |
+| `S3_ENDPOINT` | — | Endpoint do MinIO/S3 (ex: `http://minio:9000`). Sem ele usa disco local |
+| `S3_BUCKET` / `S3_ACCESS_KEY` / `S3_SECRET_KEY` / `S3_REGION` | — | Bucket e credenciais S3 (obrigatórias junto com S3_ENDPOINT) |
 | `DATA_DIR` | — | Pasta de dados (padrão `/data` — **use volume persistente!**) |
 | `PORT` | — | Porta (padrão 3000) |
 | `NTFY_URL` | — | Servidor ntfy (ex: `https://ntfy.sh`) — sem isso, notificações off |
@@ -34,7 +39,10 @@ ranking de produtos com aprovação, e cópias em PDF dos preenchimentos do usu�
 
 ```
 server.js            API + estáticos + roteamento por Host (PAINEL_ADM_HOSTS)
-db.js                Schema SQLite + camada de dados
+db.js                Dispatcher de banco (DATABASE_URL → Postgres; senão SQLite)
+db-sqlite.js         Adapter SQLite (better-sqlite3, síncrono)
+db-pg.js             Adapter PostgreSQL (driver pg, async)
+storage.js           Adapter de arquivos (S3_ENDPOINT → MinIO/S3; senão disco)
 public/
   index.html         App dos membros
   admin.html         Painel admin
@@ -53,9 +61,17 @@ Dockerfile           node:22-slim → porta 3000, VOLUME /data
 
 ```bash
 npm install
+# SQLite + disco (padrão)
 PAINEL_ADM=gestao-teste SENHA_ADM=teste123 PAINEL_ADM_HOSTS=panadm.dtxnet.top \
   DATA_DIR=./dados-teste PORT=3456 node server.js
-# API: node /tmp/teste_canivete.js   (47 verificações)
+
+# PostgreSQL + MinIO (S3)
+DATABASE_URL=postgres://user:senha@127.0.0.1:5433/canivete \
+S3_ENDPOINT=http://127.0.0.1:9000 S3_BUCKET=canivete \
+S3_ACCESS_KEY=minioadmin S3_SECRET_KEY=minioadmin \
+PAINEL_ADM=gestao-teste SENHA_ADM=teste123 DATA_DIR=./dados-teste PORT=3456 node server.js
+
+# API: node /tmp/teste_canivete.js   (57 verificações)
 # Navegador: python3 /tmp/browser_canivete.py  (25 verificações + screenshots em qa/)
 ```
 

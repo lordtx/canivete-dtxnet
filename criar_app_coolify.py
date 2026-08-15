@@ -59,6 +59,10 @@ envs = [
     {"key": "PAINEL_ADM_HOSTS", "value": os.environ.get("PAINEL_ADM_HOSTS", "panadm.dtxnet.top")},
     {"key": "DATA_DIR", "value": "/data"},
 ]
+# opcionais: banco Postgres e storage S3 (adicionados quando definidos)
+for k in ("DATABASE_URL", "S3_ENDPOINT", "S3_BUCKET", "S3_ACCESS_KEY", "S3_SECRET_KEY", "S3_REGION"):
+    if os.environ.get(k):
+        envs.append({"key": k, "value": os.environ[k]})
 for k in ("NTFY_URL", "NTFY_TOPIC", "NTFY_TOKEN"):
     if os.environ.get(k):
         envs.append({"key": k, "value": os.environ[k]})

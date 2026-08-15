@@ -18,7 +18,8 @@
 # ============================================================
 set -euo pipefail
 
-GH_TOKEN="${GH_TOKEN:?Defina GH_TOKEN}"
+GH_TOKEN="${GH_TOKEN:-$(cat "${DIR}/.git-token" 2>/dev/null | tr -d '[:space:]')}"
+if [ -z "$GH_TOKEN" ]; then echo "❌ Defina GH_TOKEN (ou crie .git-token)"; exit 1; fi
 PAINEL_ADM="${PAINEL_ADM:?Defina PAINEL_ADM (caminho reserva do painel)}"
 SENHA_ADM="${SENHA_ADM:?Defina SENHA_ADM}"
 PAINEL_ADM_HOSTS="${PAINEL_ADM_HOSTS:-panadm.dtxnet.top}"
