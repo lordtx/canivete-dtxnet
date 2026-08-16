@@ -77,6 +77,11 @@ body.tema-contraste #fundoOverlay{ background:rgba(255,255,255,.95); }
   display:flex; align-items:center; justify-content:center;
   box-shadow:0 2px 10px rgba(46,42,36,.18);
 }
+.logo-canivete{
+  display:flex; align-items:center; flex-shrink:0;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,.22));
+}
+.logo-canivete svg{ display:block; }
 .cabecalho h1{ font-family:var(--serif); font-size:23px; font-weight:700; letter-spacing:.3px; line-height:1.15; }
 .cabecalho .sub{ font-size:12px; color:var(--ink-soft); }
 .btn-menu{ display:none; margin-left:auto; }
@@ -109,7 +114,11 @@ body.tema-contraste #fundoOverlay{ background:rgba(255,255,255,.95); }
   transition:transform .2s; display:inline-flex;
 }
 .item-menu.ativo .seta{ color:rgba(255,255,255,.85); }
-.item-menu.aberto .seta{ transform:rotate(90deg); }
+.item-menu.aberto .seta{ transform:none; }
+.item-conteudo{ font-size:13.5px; color:var(--ink-soft); }
+.item-conteudo:hover{ background:rgba(176,141,87,.1); color:var(--ink); }
+.item-conteudo.ativo{ background:rgba(176,141,87,.15); color:var(--accent-deep); font-weight:600; box-shadow:none; }
+.item-conteudo .icone-menu{ width:22px; height:22px; font-size:13px; }
 .item-menu .badge{
   margin-left:auto; background:var(--accent-soft); color:var(--accent-deep);
   border-radius:999px; padding:1px 9px; font-size:11px; font-weight:600;

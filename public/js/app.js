@@ -24,7 +24,8 @@ const App = {
 async function init() {
   document.getElementById('btnAbrirMenu').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('aberta'));
   document.getElementById('btnRanking').addEventListener('click', () => { fecharDrawer(); location.hash = '#/ranking'; });
-  document.getElementById('btnMateriais').addEventListener('click', () => { fecharDrawer(); location.hash = '#/materiais'; });
+  const btnMat = document.getElementById('btnMateriais');
+  if (btnMat) btnMat.addEventListener('click', () => { fecharDrawer(); location.hash = '#/materiais'; });
 
   try { App.site = await api('/api/site'); aplicarSite(App.site); } catch (e) {}
   await carregarArvore();
@@ -37,9 +38,10 @@ function fecharDrawer() { document.getElementById('sidebar').classList.remove('a
 function aplicarSite(site) {
   document.body.className = 'tema-' + (site.tema || 'claro');
   document.title = site.titulo + ' · ' + site.descricao;
-  document.getElementById('tituloSite').textContent = site.titulo;
-  document.getElementById('subtituloSite').textContent = site.descricao;
-  document.getElementById('monograma').textContent = (site.titulo || 'C').trim().charAt(0).toUpperCase();
+  const t = document.getElementById('tituloSite');
+  if (t) t.textContent = site.titulo;
+  const s = document.getElementById('subtituloSite');
+  if (s) s.textContent = site.descricao;
 
   const video = document.getElementById('fundoVideo');
   const body = document.body;
@@ -82,12 +84,15 @@ function noMenuHTML(no, nivel) {
     (no.icone ? '<span class="icone-menu">' + escHtml(no.icone) + '</span>' : '') +
     '<span class="nome-linha">' + escHtml(no.nome) + '</span>' +
     (total > 0 ? '<span class="badge">' + total + '</span>' : '') +
-    (temFilhos ? '<span class="seta">▶</span>' : '');
+    (temFilhos ? '<span class="seta">' + (aberto ? '▼' : '▶') + '</span>' : '');
   btn.onclick = () => {
     if (temFilhos) {
+      // com submenus: apenas expande/colapsa (mostra os submenus), não fecha o menu
       App.expandidos.has(no.id) ? App.expandidos.delete(no.id) : App.expandidos.add(no.id);
       renderArvore();
+      return;
     }
+    // folha: navega e fecha
     fecharDrawer();
     App.menuAtual = no.id;
     renderArvore();
@@ -98,6 +103,24 @@ function noMenuHTML(no, nivel) {
   if (temFilhos && aberto) {
     const sub = document.createElement('ul');
     sub.className = 'filhos';
+    // conteúdos diretos do menu pai (ex: Guia do vendedor) ficam acessíveis aqui
+    if (temConteudos) {
+      no.conteudos.forEach(c => {
+        const lic = document.createElement('li');
+        const ac = document.createElement('button');
+        ac.className = 'item-menu item-conteudo' + (App.conteudoAtual && App.conteudoAtual.id === c.id ? ' ativo' : '');
+        ac.style.paddingLeft = (10 + (nivel + 1) * 14) + 'px';
+        ac.innerHTML = '<span class="icone-menu">' + ICONE_TIPO[c.tipo] + '</span><span class="nome-linha">' + escHtml(c.titulo) + '</span>';
+        ac.onclick = () => {
+          fecharDrawer();
+          App.menuAtual = no.id;
+          renderArvore();
+          location.hash = '#/c/' + c.id;
+        };
+        lic.appendChild(ac);
+        sub.appendChild(lic);
+      });
+    }
     no.children.forEach(c => sub.appendChild(noMenuHTML(c, nivel + 1)));
     li.appendChild(sub);
   }

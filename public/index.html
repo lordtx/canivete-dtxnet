@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Canivete · Central de Informações</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%232E2A24'/%3E%3Ctext x='32' y='43' font-family='Georgia,serif' font-size='34' font-weight='bold' fill='%23F0E6D3' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%3E%3Crect%20x%3D%276%27%20y%3D%278%27%20width%3D%2752%27%20height%3D%2748%27%20rx%3D%2712%27%20fill%3D%27%23d02a2a%27/%3E%3Crect%20x%3D%276%27%20y%3D%278%27%20width%3D%2752%27%20height%3D%2714%27%20rx%3D%277%27%20fill%3D%27%23e04b4b%27/%3E%3Crect%20x%3D%2726%27%20y%3D%2720%27%20width%3D%2712%27%20height%3D%2726%27%20rx%3D%273%27%20fill%3D%27white%27/%3E%3Crect%20x%3D%2716%27%20y%3D%2729%27%20width%3D%2732%27%20height%3D%2712%27%20rx%3D%273%27%20fill%3D%27white%27/%3E%3C/svg%3E">
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2E2A24">
@@ -25,14 +25,20 @@
 <div id="app">
   <header class="cabecalho">
     <button class="btn btn-fantasma btn-menu" id="btnAbrirMenu" title="Menu">☰</button>
-    <div class="monograma" id="monograma">C</div>
-    <div>
-      <h1 id="tituloSite">Canivete</h1>
-      <div class="sub" id="subtituloSite">Central de informações</div>
+    <div class="logo-canivete" id="logoCanivete" title="Canivete" aria-label="Canivete">
+      <svg viewBox="0 0 64 64" width="34" height="34" aria-hidden="true">
+        <path d="M22 30 L22 12 Q22 7 28 7 Q34 7 34 12 L34 30 Z" fill="#d9dde1" stroke="#b6bcc4" stroke-width="1.6"/>
+        <path d="M24.5 30 L24.5 15.5 L28.5 11.5 L34 30 Z" fill="#f2f4f6"/>
+        <rect x="14" y="28" width="36" height="23" rx="6" fill="#d02a2a"/>
+        <rect x="14" y="28" width="36" height="7" rx="3.5" fill="#e04b4b"/>
+        <rect x="29" y="34" width="6" height="13" rx="1.5" fill="#fff"/>
+        <rect x="24" y="38.5" width="16" height="6" rx="1.5" fill="#fff"/>
+        <circle cx="19" cy="48" r="1.7" fill="#8a1f1f"/>
+        <circle cx="45" cy="48" r="1.7" fill="#8a1f1f"/>
+      </svg>
     </div>
     <div class="acoes">
       <button class="btn btn-fantasma" id="btnRanking">🏆 Ranking</button>
-      <button class="btn btn-fantasma" id="btnMateriais">📥 Meus materiais</button>
     </div>
   </header>
 
