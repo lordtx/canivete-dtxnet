@@ -380,6 +380,22 @@ body.tema-contraste #fundoOverlay{ background:rgba(255,255,255,.95); }
 .editor-linha input[type=text]{ flex:1; padding:9px 12px; border:1px solid var(--line); border-radius:10px; background:var(--surface); color:var(--ink); }
 .linha-campo-form{ border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:10px; background:var(--surface); }
 
+/* paleta de emojis (ícone de menu) */
+.paleta-emoji{
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(42px,1fr)); gap:6px;
+  max-height:180px; overflow-y:auto; padding:10px; margin-top:8px;
+  background:var(--surface-soft); border:1px solid var(--line); border-radius:12px;
+}
+.paleta-emoji .em{
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; padding:7px 0; border:1px solid transparent; border-radius:9px;
+  background:var(--surface); cursor:pointer; transition:transform .1s, border-color .15s, box-shadow .15s;
+}
+.paleta-emoji .em:hover{ transform:scale(1.12); border-color:var(--accent); box-shadow:0 2px 8px rgba(176,141,87,.25); }
+.paleta-emoji .em.selecionado{ border-color:var(--accent); background:var(--accent-soft); box-shadow:0 0 0 2px var(--accent-soft); }
+.paleta-emoji .grupo{ grid-column:1/-1; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--ink-soft); padding:8px 2px 2px; }
+.paleta-emoji .grupo:first-child{ padding-top:2px; }
+
 /* responsivo */
 @media (max-width:900px){
   .sidebar{

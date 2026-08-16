@@ -169,7 +169,9 @@ function abrirMenuEditor(idMenu) {
     <h3>${menu ? '✏️ Editar menu' : '➕ Novo menu'}</h3>
     <form id="formMenu">
       <div class="campo"><label>Nome <span class="obrig">*</span></label><input type="text" id="mNome" required value="${menu ? escHtml(menu.nome) : ''}"></div>
-      <div class="campo"><label>Ícone (emoji, opcional)</label><input type="text" id="mIcone" value="${menu ? escHtml(menu.icone) : ''}" placeholder="📁"></div>
+      <div class="campo"><label>Ícone (emoji)</label><input type="text" id="mIcone" value="${menu ? escHtml(menu.icone) : ''}" placeholder="Clique num emoji abaixo ou digite">
+        <div class="paleta-emoji" id="paletaEmoji"></div>
+      </div>
       <div class="campo"><label>Menu pai (opcional — submenu)</label>
         <select id="mPai"><option value="">— Nenhum (nível principal) —</option>
           ${opcoes.map(o => `<option value="${o.id}" ${menu && menu.parent_id === o.id ? 'selected' : ''}>${'—'.repeat(o.nivel)} ${escHtml(o.nome)}</option>`).join('')}
@@ -197,6 +199,7 @@ function abrirMenuEditor(idMenu) {
       renderMenus();
     } catch (e) { toast('Erro: ' + e.message, 'erro'); }
   });
+  renderPaletaEmoji(menu ? menu.icone : '');
 }
 
 function descendentes(nos, id, out = []) {
@@ -206,6 +209,35 @@ function descendentes(nos, id, out = []) {
     else descendentes(no.children || [], id, out);
   }
   return out;
+}
+
+/* paleta de emojis para ícone de menu */
+const EMOJIS_MENU = [
+  ['Comércio', ['💰', '🛒', '🛍️', '📦', '🚚', '🏪', '🏷️', '🔖', '🧾', '💳', '🪙', '💵']],
+  ['Finanças', ['📈', '📉', '💹', '🏦', '🧮', '📊', '💸', '🏧']],
+  ['Segurança', ['🛡️', '🔒', '🔑', '⚠️', '🚨', '🕵️', '🧯']],
+  ['Ferramentas', ['🧰', '🔧', '⚙️', '🛠️', '🔩', '🧩', '📐']],
+  ['Tecnologia', ['💻', '📱', '🖥️', '🌐', '⌨️', '🖱️', '📧', '🔍']],
+  ['Conteúdo', ['📄', '📕', '🖼️', '🎬', '📋', '☑️', '📝', '🗒️', '📁', '🗂️', '📎', '✏️']],
+  ['Pessoas', ['👤', '👥', '🤝', '💬', '📞', '⭐', '🎓', '📚', '💡']],
+  ['Organização', ['📅', '⏰', '🔔', '✅', '❌', '📌', '🎯', '🚀', '🏠', '⚖️', '📜']],
+];
+
+function renderPaletaEmoji(selecionado) {
+  const box = document.getElementById('paletaEmoji');
+  if (!box) return;
+  box.innerHTML = EMOJIS_MENU.map(([grupo, emojis]) =>
+    '<div class="grupo">' + escHtml(grupo) + '</div>' +
+    emojis.map(e => `<button type="button" class="em ${e === selecionado ? 'selecionado' : ''}" data-em="${escHtml(e)}">${e}</button>`).join('')
+  ).join('');
+  box.querySelectorAll('.em').forEach(b => {
+    b.addEventListener('click', () => {
+      const inp = document.getElementById('mIcone');
+      if (inp) inp.value = b.dataset.em;
+      box.querySelectorAll('.em').forEach(x => x.classList.remove('selecionado'));
+      b.classList.add('selecionado');
+    });
+  });
 }
 
 async function removerMenu(id, nome) {
