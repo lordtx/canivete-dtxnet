@@ -138,15 +138,16 @@ async function renderMenus() {
       <button class="btn btn-primario" onclick="abrirMenuEditor()">➕ Novo menu</button>
       <div style="margin-top:16px">
         ${flat.length ? `<ul class="arvore arvore-admin">${flat.map(m => `
-          <li style="margin-left:${m.nivel * 18}px">
+          <li style="margin-left:${m.nivel * 22}px">
             <div class="no-menu ${m.ativo ? '' : 'inativo'}">
-              <span>${m.icone ? escHtml(m.icone) : '📁'}</span>
-              <strong>${escHtml(m.nome)}</strong>
-              <span style="color:var(--ink-soft); font-size:12px">${m.conteudos.length} conteúdo(s)</span>
+              <span class="icone-menu">${m.icone ? escHtml(m.icone) : '📁'}</span>
+              <strong class="nome-linha">${escHtml(m.nome)}</strong>
+              <span class="badge-contagem">${m.conteudos.length} conteúdo${m.conteudos.length === 1 ? '' : 's'}</span>
+              <span class="badge-status ${m.ativo ? 'ativo' : 'inativo'}"><span class="dot"></span>${m.ativo ? 'Ativo' : 'Inativo'}</span>
               <span class="acoes">
-                <button class="btn btn-fantasma btn-pequeno" onclick="abrirMenuEditor(${m.id})">✏️</button>
-                <button class="btn btn-fantasma btn-pequeno" onclick="abrirConteudoEditor(null, ${m.id})">➕ Conteúdo</button>
-                <button class="btn btn-perigo btn-pequeno" onclick="removerMenu(${m.id}, '${escHtml(m.nome)}')">🗑️</button>
+                <button class="btn btn-fantasma btn-pequeno" onclick="abrirMenuEditor(${m.id})" title="Editar menu">✏️</button>
+                <button class="btn btn-fantasma btn-pequeno" onclick="abrirConteudoEditor(null, ${m.id})" title="Adicionar conteúdo">➕</button>
+                <button class="btn btn-perigo btn-pequeno" onclick="removerMenu(${m.id}, '${escHtml(m.nome)}')" title="Excluir">🗑️</button>
               </span>
             </div>
           </li>`).join('')}</ul>`

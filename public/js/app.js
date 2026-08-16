@@ -73,15 +73,16 @@ function noMenuHTML(no, nivel) {
   const temFilhos = no.children && no.children.length > 0;
   const temConteudos = no.conteudos && no.conteudos.length > 0;
   const aberto = App.expandidos.has(no.id);
+  const total = contarConteudos(no);
 
   const btn = document.createElement('button');
   btn.className = 'item-menu' + (aberto ? ' aberto' : '') + (App.menuAtual === no.id ? ' ativo' : '');
-  btn.style.paddingLeft = (12 + nivel * 10) + 'px';
+  btn.style.paddingLeft = (10 + nivel * 14) + 'px';
   btn.innerHTML =
-    (no.icone ? '<span>' + escHtml(no.icone) + '</span>' : '') +
-    '<span>' + escHtml(no.nome) + '</span>' +
-    (temFilhos ? '<span class="seta">▶</span>' : '') +
-    (temConteudos && !temFilhos ? '<span class="badge">' + no.conteudos.length + '</span>' : '');
+    (no.icone ? '<span class="icone-menu">' + escHtml(no.icone) + '</span>' : '') +
+    '<span class="nome-linha">' + escHtml(no.nome) + '</span>' +
+    (total > 0 ? '<span class="badge">' + total + '</span>' : '') +
+    (temFilhos ? '<span class="seta">▶</span>' : '');
   btn.onclick = () => {
     if (temFilhos) {
       App.expandidos.has(no.id) ? App.expandidos.delete(no.id) : App.expandidos.add(no.id);
@@ -142,16 +143,40 @@ function renderHome() {
     cards += `<a class="cartao-menu" href="#/menu/${no.id}">
       <div class="icone">${no.icone ? escHtml(no.icone) : '📁'}</div>
       <div class="nome">${escHtml(no.nome)}</div>
-      <div class="contagem">${total} ${total === 1 ? 'item' : 'itens'}</div>
+      <div class="contagem"><span class="pill">${total}</span> ${total === 1 ? 'item' : 'itens'}</div>
     </a>`;
   });
   c.innerHTML = `
-    <div class="cartao">
-      <h2>Bem-vindo 👋</h2>
-      <p class="desc">${escHtml(desc)}</p>
+    <div class="cartao" style="background:linear-gradient(135deg, var(--surface) 0%, var(--accent-soft) 100%); border:none; padding:30px 28px">
+      <h2 style="font-size:30px">Bem-vindo 👋</h2>
+      <p class="desc" style="font-size:15px">${escHtml(desc)}</p>
     </div>
-    ${App.arvore.length ? '<div class="grade-menus">' + cards + '</div>'
+    ${App.arvore.length ? '<div class="grade-menus" style="margin-top:6px">' + cards + '</div>'
       : '<div class="vazio"><div class="grande">🗂️</div><p>Nenhum menu publicado ainda.</p></div>'}`;
+}
+
+/* caminho da raiz até o menu (para breadcrumb) */
+function acharCaminho(nos, id, trilha = []) {
+  for (const no of nos) {
+    const nova = [...trilha, no];
+    if (no.id === id) return nova;
+    const r = acharCaminho(no.children || [], id, nova);
+    if (r) return r;
+  }
+  return null;
+}
+function breadcrumbHTML(trilha, fim) {
+  const partes = ['<a href="#/">Início</a>'];
+  (trilha || []).forEach((no, i) => {
+    partes.push('<span class="sep">›</span>');
+    if (i === (trilha.length - 1) && !fim) partes.push('<span>' + escHtml(no.nome) + '</span>');
+    else partes.push('<a href="#/menu/' + no.id + '">' + escHtml(no.nome) + '</a>');
+  });
+  if (fim) {
+    partes.push('<span class="sep">›</span>');
+    partes.push('<span style="color:var(--ink); font-weight:600">' + escHtml(fim) + '</span>');
+  }
+  return '<div class="migalhas">' + partes.join('') + '</div>';
 }
 
 function contarConteudos(no) {
@@ -165,13 +190,15 @@ function renderMenuView(id) {
   const no = acharMenu(App.arvore, id);
   const c = document.getElementById('conteudo');
   if (!no) { c.innerHTML = '<div class="vazio"><div class="grande">🤷</div><p>Menu não encontrado.</p></div>'; return; }
+  const trilha = acharCaminho(App.arvore, id);
   const conteudos = no.conteudos || [];
   c.innerHTML = `
-    <div class="cartao">
+    ${breadcrumbHTML(trilha)}
+    <div class="cartao" style="background:linear-gradient(135deg, var(--surface) 0%, var(--accent-soft) 100%); border:none">
       <h2>${no.icone ? escHtml(no.icone) + ' ' : ''}${escHtml(no.nome)}</h2>
       ${conteudos.length ? '<p class="desc">' + conteudos.length + ' conteúdo(s) disponível(is).</p>' : ''}
     </div>
-    ${conteudos.length ? '<div class="grade-menus">' + conteudos.map(ct =>
+    ${conteudos.length ? '<div class="grade-menus" style="margin-top:6px">' + conteudos.map(ct =>
       `<a class="cartao-menu" href="#/c/${ct.id}">
         <div class="icone">${ICONE_TIPO[ct.tipo] || '📄'}</div>
         <div class="nome">${escHtml(ct.titulo)}</div>
@@ -208,8 +235,10 @@ async function renderConteudo(ct) {
   const c = document.getElementById('conteudo');
   let corpo = '';
 
-  // cabeçalho + navegação de volta
-  corpo += `<button class="btn btn-fantasma btn-pequeno" onclick="history.back()" style="margin-bottom:14px">← Voltar</button>`;
+  // breadcrumb: Início > Menu > Conteúdo
+  const noMenu = acharMenu(App.arvore, ct.menu_id);
+  const trilha = noMenu ? acharCaminho(App.arvore, ct.menu_id) : null;
+  corpo += breadcrumbHTML(trilha, ct.titulo);
 
   switch (ct.tipo) {
     case 'texto':
