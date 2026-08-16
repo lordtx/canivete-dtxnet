@@ -431,6 +431,10 @@ function renderCamposForm() {
         <input type="text" placeholder="Placeholder/dica" value="${escHtml(f.placeholder || '')}" onchange="editarCampoForm(${i},'placeholder',this.value)" style="flex:2; min-width:160px">
         <label style="display:flex; align-items:center; gap:5px; font-size:13px"><input type="checkbox" ${f.obrigatorio ? 'checked' : ''} onchange="editarCampoForm(${i},'obrigatorio',this.checked)"> Obrigatório</label>
       </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px">
+        <input type="text" placeholder="🔗 Link de referência (URL, ex: https://www.anatel.gov.br/consultaimei/)" value="${escHtml(f.link || '')}" onchange="editarCampoForm(${i},'link',this.value)" style="flex:2; min-width:200px">
+        <input type="text" placeholder="Texto do link (ex: Consultar IMEI)" value="${escHtml(f.link_texto || '')}" onchange="editarCampoForm(${i},'link_texto',this.value)" style="flex:2; min-width:160px">
+      </div>
       ${f.tipo === 'selecao' ? `<div style="margin-top:6px"><input type="text" placeholder="Opções separadas por vírgula (ex: Sim, Não, Talvez)" value="${escHtml((f.opcoes || []).join(', '))}" onchange="editarCampoForm(${i},'opcoes',this.value)" style="width:100%"></div>` : ''}
     </div>`).join('') || '<p class="desc">Nenhum campo ainda.</p>';
 }

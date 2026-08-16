@@ -397,9 +397,12 @@ function renderFormulario(ct, envio) {
     ${ct.corpo ? '<p class="desc">' + escHtml(ct.corpo) + '</p>' : ''}
     <form id="formDinamico" onsubmit="return enviarFormulario(event)">
       <div id="camposForm"></div>
-      <button type="submit" class="btn btn-verde btn-bloco" style="margin-top:6px">📨 Enviar</button>
+      <div style="display:flex; gap:10px; margin-top:6px; flex-wrap:wrap">
+        <button type="submit" class="btn btn-verde" style="flex:1">📨 Enviar</button>
+        <button type="button" class="btn btn-escuro" style="flex:1" onclick="gerarPdfFormulario()">🖨️ Gerar PDF</button>
+      </div>
     </form>
-    <p class="dica" style="color:var(--ink-soft); font-size:12.5px; margin-top:10px">Depois de enviar, você poderá baixar uma cópia em PDF com suas respostas.</p>
+    <p class="dica" style="color:var(--ink-soft); font-size:12.5px; margin-top:10px">Ao gerar o PDF, uma cópia das suas respostas é salva automaticamente na plataforma.</p>
   </div>`;
 }
 
@@ -415,21 +418,24 @@ function montarFormulario(ct, envio) {
     const obrig = f.obrigatorio ? ' <span class="obrig">*</span>' : '';
     const rotulo = '<label>' + escHtml(f.rotulo || ('Campo ' + (i + 1))) + obrig + '</label>';
     const dica = f.placeholder ? '<div class="dica">' + escHtml(f.placeholder) + '</div>' : '';
+    const link = f.link
+      ? '<div class="dica"><a href="' + escHtml(f.link) + '" target="_blank" rel="noopener">🔗 ' + escHtml(f.link_texto || 'Link de referência') + '</a></div>'
+      : '';
     switch (f.tipo) {
       case 'texto_longo':
-        return `<div class="campo" data-campo="${escHtml(id)}">${rotulo}<textarea placeholder="${escHtml(f.placeholder || '')}">${escHtml(valor)}</textarea>${dica}</div>`;
+        return `<div class="campo" data-campo="${escHtml(id)}">${rotulo}<textarea placeholder="${escHtml(f.placeholder || '')}">${escHtml(valor)}</textarea>${dica}${link}</div>`;
       case 'numero':
-        return `<div class="campo" data-campo="${escHtml(id)}">${rotulo}<input type="number" step="0.01" placeholder="${escHtml(f.placeholder || '')}" value="${escHtml(valor)}">${dica}</div>`;
+        return `<div class="campo" data-campo="${escHtml(id)}">${rotulo}<input type="number" step="0.01" placeholder="${escHtml(f.placeholder || '')}" value="${escHtml(valor)}">${dica}${link}</div>`;
       case 'selecao':
-        return `<div class="campo" data-campo="${escHtml(id)}">${rotulo}<select><option value="">Selecione...</option>${(f.opcoes || []).map(o => `<option value="${escHtml(o)}" ${String(valor) === String(o) ? 'selected' : ''}>${escHtml(o)}</option>`).join('')}</select>${dica}</div>`;
+        return `<div class="campo" data-campo="${escHtml(id)}">${rotulo}<select><option value="">Selecione...</option>${(f.opcoes || []).map(o => `<option value="${escHtml(o)}" ${String(valor) === String(o) ? 'selected' : ''}>${escHtml(o)}</option>`).join('')}</select>${dica}${link}</div>`;
       case 'check':
-        return `<div class="campo" data-campo="${escHtml(id)}">${rotulo}<label class="check-simples"><input type="checkbox" ${valor ? 'checked' : ''}> <span>${escHtml(f.placeholder || 'Marcar')}</span></label>${dica}</div>`;
+        return `<div class="campo" data-campo="${escHtml(id)}">${rotulo}<label class="check-simples"><input type="checkbox" ${valor ? 'checked' : ''}> <span>${escHtml(f.placeholder || 'Marcar')}</span></label>${dica}${link}</div>`;
       case 'data':
-        return `<div class="campo" data-campo="${escHtml(id)}">${rotulo}<input type="date" value="${escHtml(valor)}">${dica}</div>`;
+        return `<div class="campo" data-campo="${escHtml(id)}">${rotulo}<input type="date" value="${escHtml(valor)}">${dica}${link}</div>`;
       case 'whatsapp':
-        return `<div class="campo" data-campo="${escHtml(id)}">${rotulo}<input type="tel" inputmode="numeric" placeholder="${escHtml(f.placeholder || '(00) 00000-0000')}" value="${escHtml(valor)}">${dica}</div>`;
+        return `<div class="campo" data-campo="${escHtml(id)}">${rotulo}<input type="tel" inputmode="numeric" placeholder="${escHtml(f.placeholder || '(00) 00000-0000')}" value="${escHtml(valor)}">${dica}${link}</div>`;
       default:
-        return `<div class="campo" data-campo="${escHtml(id)}">${rotulo}<input type="text" placeholder="${escHtml(f.placeholder || '')}" value="${escHtml(valor)}">${dica}</div>`;
+        return `<div class="campo" data-campo="${escHtml(id)}">${rotulo}<input type="text" placeholder="${escHtml(f.placeholder || '')}" value="${escHtml(valor)}">${dica}${link}</div>`;
     }
   }).join('');
 }
@@ -449,24 +455,19 @@ function coletarFormulario() {
   return respostas;
 }
 
-async function enviarFormulario(ev) {
-  ev.preventDefault();
-  const ct = App.conteudoAtual;
-  if (!ct) return;
-  const campos = ct.dados || [];
-  const respostas = coletarFormulario();
-
-  // valida obrigatórios
+function validarObrigatorios(campos, respostas) {
   for (const f of campos) {
     const id = String(f.id !== undefined ? f.id : 'f' + campos.indexOf(f));
     const v = respostas[id];
     if (f.obrigatorio && (v === undefined || v === '' || v === false)) {
       toast('Preencha o campo obrigatório: ' + (f.rotulo || id), 'erro');
-      return;
+      return false;
     }
   }
+  return true;
+}
 
-  // nome/whatsapp detectados pelos rótulos
+function nomeWhatsappDoForm(campos, respostas) {
   let nome = '', whatsapp = '';
   campos.forEach((f, i) => {
     const id = String(f.id !== undefined ? f.id : 'f' + i);
@@ -474,6 +475,35 @@ async function enviarFormulario(ev) {
     if (rotulo.includes('nome')) nome = respostas[id] || '';
     if (rotulo.includes('whats')) whatsapp = respostas[id] || '';
   });
+  return { nome, whatsapp };
+}
+
+async function gerarPdfFormulario() {
+  const ct = App.conteudoAtual;
+  if (!ct) return;
+  const campos = ct.dados || [];
+  const respostas = coletarFormulario();
+  if (!validarObrigatorios(campos, respostas)) return;
+  const { nome, whatsapp } = nomeWhatsappDoForm(campos, respostas);
+  try {
+    await api('/api/envio', {
+      method: 'POST',
+      json: { conteudo_id: ct.id, dispositivo: getDispositivo(), tipo_envio: 'formulario', nome, whatsapp, dados: respostas },
+    });
+    toast('Cópia salva! Gerando PDF... 📄', 'ok');
+    baixarCopia();
+  } catch (e) { toast('Erro ao salvar: ' + e.message, 'erro'); }
+}
+
+async function enviarFormulario(ev) {
+  ev.preventDefault();
+  const ct = App.conteudoAtual;
+  if (!ct) return;
+  const campos = ct.dados || [];
+  const respostas = coletarFormulario();
+
+  if (!validarObrigatorios(campos, respostas)) return;
+  const { nome, whatsapp } = nomeWhatsappDoForm(campos, respostas);
 
   try {
     await api('/api/envio', {

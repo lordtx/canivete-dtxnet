@@ -12,3 +12,7 @@ qa/
 .git-token
 push_github.sh
 .deploy-segredos
+
+.minio-segredos
+.supabase-segredos
+criar_app_coolify.py
