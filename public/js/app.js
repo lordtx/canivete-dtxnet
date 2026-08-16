@@ -119,6 +119,7 @@ async function rota() {
       const id = Number(h.split('/')[2]);
       const conteudo = await api('/api/conteudo/' + id);
       renderConteudo(conteudo);
+      setTimeout(mostrarPopupDoacao, 2500);
     } else if (h.startsWith('#/menu/')) {
       const id = Number(h.split('/')[2]);
       renderMenuView(id);
@@ -736,3 +737,50 @@ async function baixarEnvioPDF(idEnvio) {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+/* ---------------- popup doação (parte inferior) ---------------- */
+const LINK_DOACAO = 'https://link.mercadopago.com.br/dtxzn';
+const PIX_DOACAO = 'pix@arthvision.com';
+const DOACAO_INTERVALO_MS = 24 * 60 * 60 * 1000; // reaparece após 24h
+
+function podeMostrarDoacao() {
+  try {
+    const ultimo = Number(localStorage.getItem('cnv_doacao_ultimo') || 0);
+    return Date.now() - ultimo > DOACAO_INTERVALO_MS;
+  } catch (e) { return true; }
+}
+function marcarDoacaoVista() {
+  try { localStorage.setItem('cnv_doacao_ultimo', String(Date.now())); } catch (e) {}
+}
+function mostrarPopupDoacao() {
+  const el = document.getElementById('popupDoacao');
+  if (!el || el.style.display !== 'none') return;
+  if (!podeMostrarDoacao()) return;
+  el.style.display = 'block';
+}
+function fecharPopupDoacao() {
+  marcarDoacaoVista();
+  const el = document.getElementById('popupDoacao');
+  if (el) el.style.display = 'none';
+}
+function okPopupDoacao() {
+  marcarDoacaoVista();
+  window.location.href = LINK_DOACAO;
+}
+function copiarPixDoacao() {
+  const chave = document.querySelector('.pix-chave');
+  if (!chave) return;
+  const texto = chave.textContent.trim();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(texto).then(() => toast('Chave Pix copiada! 💛', 'ok')).catch(() => {});
+  }
+  toast('Pix: ' + texto, 'ok');
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const btnNao = document.getElementById('btnDoacaoNao');
+  const btnOk = document.getElementById('btnDoacaoOk');
+  const chavePix = document.querySelector('.pix-chave');
+  if (btnNao) btnNao.addEventListener('click', fecharPopupDoacao);
+  if (btnOk) btnOk.addEventListener('click', okPopupDoacao);
+  if (chavePix) chavePix.addEventListener('click', copiarPixDoacao);
+});

@@ -412,3 +412,31 @@ body.tema-contraste #fundoOverlay{ background:rgba(255,255,255,.95); }
   .admin-nav button{ width:auto; }
   .admin-main{ padding:20px 14px 60px; }
 }
+
+/* ============ popup doação (parte inferior) ============ */
+.popup-doacao{
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1000;
+  padding: 0 16px; pointer-events: none;
+}
+.popup-doacao-card{
+  max-width: 580px; margin: 0 auto;
+  background: var(--card, #fff); border: 1px solid var(--line, #e5e7eb);
+  border-bottom: none; border-radius: 16px 16px 0 0;
+  box-shadow: 0 -8px 28px rgba(0,0,0,.14);
+  padding: 16px 18px 18px;
+  display: flex; gap: 12px; align-items: center;
+  pointer-events: auto;
+  animation: popupDoacaoSobe .4s cubic-bezier(.2,.8,.3,1);
+}
+@keyframes popupDoacaoSobe{ from{ transform: translateY(110%); opacity:.4 } to{ transform: translateY(0); opacity:1 } }
+.popup-doacao-icone{ font-size: 26px; line-height: 1; flex-shrink: 0; }
+.popup-doacao-texto{ flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; font-size: 13.5px; }
+.popup-doacao-texto strong{ font-size: 14px; }
+.popup-doacao-texto .pix-chave{ color: var(--green, #059669); letter-spacing: .2px; }
+.popup-doacao-acoes{ display: flex; gap: 8px; flex-shrink: 0; }
+.popup-doacao-acoes .btn{ white-space: nowrap; }
+@media (max-width: 520px){
+  .popup-doacao-card{ flex-wrap: wrap; padding: 14px 14px 16px; }
+  .popup-doacao-acoes{ width: 100%; }
+  .popup-doacao-acoes .btn{ flex: 1; }
+}
