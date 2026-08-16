@@ -87,12 +87,9 @@ function noMenuHTML(no, nivel) {
     (temFilhos ? '<span class="seta">' + (aberto ? '▼' : '▶') + '</span>' : '');
   btn.onclick = () => {
     if (temFilhos) {
-      // com submenus: apenas expande/colapsa (mostra os submenus), não fecha o menu
+      // expande/colapsa no sidebar E navega (painel direito mostra os submenus)
       App.expandidos.has(no.id) ? App.expandidos.delete(no.id) : App.expandidos.add(no.id);
-      renderArvore();
-      return;
     }
-    // folha: navega e fecha
     fecharDrawer();
     App.menuAtual = no.id;
     renderArvore();
@@ -216,19 +213,34 @@ function renderMenuView(id) {
   if (!no) { c.innerHTML = '<div class="vazio"><div class="grande">🤷</div><p>Menu não encontrado.</p></div>'; return; }
   const trilha = acharCaminho(App.arvore, id);
   const conteudos = no.conteudos || [];
+  const submenus = no.children || [];
+  const totalItens = conteudos.length + submenus.length;
+
+  const cardsSub = submenus.length ? submenus.map(s => {
+    const total = contarConteudos(s);
+    return `<a class="cartao-menu" href="#/menu/${s.id}">
+      <div class="icone">${s.icone ? escHtml(s.icone) : '📁'}</div>
+      <div class="nome">${escHtml(s.nome)}</div>
+      <div class="contagem"><span class="pill">${total}</span> ${total === 1 ? 'item' : 'itens'}</div>
+    </a>`;
+  }).join('') : '';
+
+  const cardsConteudo = conteudos.length ? conteudos.map(ct =>
+    `<a class="cartao-menu" href="#/c/${ct.id}">
+      <div class="icone">${ICONE_TIPO[ct.tipo] || '📄'}</div>
+      <div class="nome">${escHtml(ct.titulo)}</div>
+      <div class="contagem">${nomeTipo(ct.tipo)}</div>
+    </a>`).join('') : '';
+
   c.innerHTML = `
     ${breadcrumbHTML(trilha)}
     <div class="cartao" style="background:linear-gradient(135deg, var(--surface) 0%, var(--accent-soft) 100%); border:none">
       <h2>${no.icone ? escHtml(no.icone) + ' ' : ''}${escHtml(no.nome)}</h2>
-      ${conteudos.length ? '<p class="desc">' + conteudos.length + ' conteúdo(s) disponível(is).</p>' : ''}
+      ${totalItens ? '<p class="desc">' + totalItens + ' item(ns) disponível(is).</p>' : ''}
     </div>
-    ${conteudos.length ? '<div class="grade-menus" style="margin-top:6px">' + conteudos.map(ct =>
-      `<a class="cartao-menu" href="#/c/${ct.id}">
-        <div class="icone">${ICONE_TIPO[ct.tipo] || '📄'}</div>
-        <div class="nome">${escHtml(ct.titulo)}</div>
-        <div class="contagem">${nomeTipo(ct.tipo)}</div>
-      </a>`).join('') + '</div>'
-    : '<div class="vazio"><p>Este menu ainda não tem conteúdo.</p></div>'}`;
+    ${cardsSub ? '<h3 style="margin:18px 4px 2px; font-size:14.5px; font-weight:600; color:var(--ink-soft)">📂 Submenus</h3><div class="grade-menus" style="margin-top:8px">' + cardsSub + '</div>' : ''}
+    ${cardsConteudo ? '<h3 style="margin:20px 4px 2px; font-size:14.5px; font-weight:600; color:var(--ink-soft)">📄 Conteúdos</h3><div class="grade-menus" style="margin-top:8px">' + cardsConteudo + '</div>' : ''}
+    ${!totalItens ? '<div class="vazio" style="margin-top:14px"><p>Este menu ainda não tem conteúdo.</p></div>' : ''}`;
 }
 
 function acharMenu(nos, id) {
