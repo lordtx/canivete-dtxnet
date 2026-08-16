@@ -1,8 +1,9 @@
 /* ============================================================
- * CANIVETE — service worker (offline-first p/ estáticos)
- * Estáticos: cache-first. Navegação e API: network-first.
+ * CANIVETE — service worker
+ * Estratégia: network-first p/ estáticos e navegação (sempre pega
+ * a versão nova quando online; cache é só fallback offline).
  * ============================================================ */
-const CACHE = 'canivete-v1';
+const CACHE = 'canivete-v2';
 const ESTATICOS = [
   './',
   './index.html',
@@ -35,25 +36,16 @@ self.addEventListener('fetch', (e) => {
   // API e arquivos sempre da rede
   if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/arquivos/')) return;
 
-  if (e.request.mode === 'navigate') {
-    // rede primeiro, fallback para index.html em cache
-    e.respondWith(
-      fetch(e.request)
-        .then((r) => {
-          const copia = r.clone();
-          caches.open(CACHE).then((c) => c.put('./index.html', copia));
-          return r;
-        })
-        .catch(() => caches.match('./index.html'))
-    );
-    return;
-  }
-
+  // Network-first: busca a versão mais nova; cache só quando offline
   e.respondWith(
-    caches.match(e.request).then((r) => r || fetch(e.request).then((res) => {
-      const copia = res.clone();
-      caches.open(CACHE).then((c) => c.put(e.request, copia));
-      return res;
-    }))
+    fetch(e.request)
+      .then((r) => {
+        if (r && (r.status === 200 || r.type === 'basic' || r.type === 'default')) {
+          const copia = r.clone();
+          caches.open(CACHE).then((c) => c.put(e.request, copia));
+        }
+        return r;
+      })
+      .catch(() => caches.match(e.request).then((r) => r || caches.match('./index.html')))
   );
 });
